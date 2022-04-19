@@ -1,0 +1,108 @@
+---
+title: "Assignmnet 1"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Problem 1.1
+Part 1: The F_2(x) cdf will have a heavier lower tail since the cdf is greater, there is more of a probability toward the lower end.
+
+Part2: The F_1(x) cdf will have a heavier upper tail because the cdf is smaller. This means that there will be more of a probability toward the upper end. 
+
+Part 3: F_2(x) will have a larger risk because VaR_0.01 means the 100pth percentile of the loss
+distribution, which in this case is the 1 percentile. So when looking at the VaR_0.01 for each cdf, F_2(x) has a higher percentile which tells us it has a higher probability of loss. 
+
+
+```{r}
+## Problem 2
+## Part 1
+r = 0.2
+N = seq(0,40,length=1024)
+X = rexp(N, rate = r)
+
+## Part 2
+X_theory = dexp(N,rate = r)#r*exp(-r*N) 
+#plot(N,X)
+
+
+hist(X, breaks = 100,prob = TRUE)
+lines(N, X_theory, col="red", lty=1)
+
+## Part 3
+names = c("gaussian", "rectangular", "triangular", "epanechnikov", "biweight", "cosine", "optcosine")
+weights = c(0.1, 1, 2, 5, 10, 50)
+for (i in names){
+  for(j in weights){
+    plot(density(X_theory, bw = j  ,kernel = c(i)), main = "My Kernel Density Plot", xlab = "X-Values", ylab = "Density of my X-Values")
+    lines(N, X_theory, col="red", lty=1)
+  }
+}
+## Part 4
+
+## 
+
+
+```
+```{r}
+names = c("gaussian")
+bandw = c(8,8.5,8.6,8.7,8.8,8.9)#c(1800,1825,1850,1875,1900)
+
+for (i in names){
+  for(j in bandw){
+    plot(density(X_theory, bw = j  ,kernel = c(i)),main = "My Kernel Density Plot", xlab = "X-Values", ylab = "Density of my X-Values")
+    lines(N, X_theory, col="red", lty=1)
+  }
+}
+
+```
+
+```{r}
+## Problem 1.4
+## Part 2.1
+num = 100
+x1 = rlnorm(num,0,1)
+y1 = rcauchy(num,0,1)
+
+qqplot(x1,y1,xlab="Log-Norm Dist.", ylab="Cauchy Dist.")
+
+## Part 2.2
+x2 = rlnorm(num,0,1)
+y2 = rnorm(num,0,1)
+
+qqplot(x2,y2,xlab="Log-Norm Dist.", ylab="Norm Dist.")
+
+```
+
+
+```{r}
+## Problem 1.8
+## Part 1
+N2 = seq(128)
+x_norm = rnorm(N2,0,1)
+qqnorm(x_norm, main = "Normal Q-Q Plot",xlab = "Theoretical Quantiles", ylab = "Sample Quantiles")
+qqline(x_norm, col = "steelblue", lwd = 2)
+
+
+## The features that suggest it is a Gaussion distribution are that ........
+
+
+## Part 2
+x_exp = rexp(N2, rate = 1)
+qqnorm(x_exp, main = "Normal Q-Q Plot",xlab = "Theoretical Quantiles", ylab = "Sample Quantiles")
+qqline(x_exp, col = "steelblue", lwd = 2)
+```
+
+```{r}
+N = seq(-10,10,length = 1000)
+y1 = pcauchy(N,0,1)
+plot(N,y1,type="l",col="red")
+lines(N, 5*y1, col = 'blue')
+
+qqplot(y1, 5*y1)
+```
+
+

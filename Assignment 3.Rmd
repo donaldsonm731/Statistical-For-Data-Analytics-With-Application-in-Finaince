@@ -1,0 +1,178 @@
+---
+title: "Assignment 3"
+author: "Matthew Donaldson"
+date: "2/6/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Problem 3.10
+**1-3)**
+Looking at the 21 plots made from the code below, you can see that when rho is negative the plots look logarithmic and as rho tends toward 0 there is no correlation, which makes sense because rho - 0 as well. As rho increases to 1, we can see that the graph starts heading down.
+```{r}
+# Part 1
+library(Rsafd)
+
+SIG2 = seq(0.1, 20, length = 100)
+RHO = seq(-1, 1, length = 21)
+# Creating a bivariate gauss dist. for each sig2 and rho with x~N(0,1) 
+# and Y~N(0,sig^2)
+
+# Part 2
+# All possible combinations of rho and sig2
+comb = expand.grid(SIG2,RHO)
+
+Z = list()
+rho_til = c( NULL , length = 2100)
+for(i in 1 : dim(comb)[1]){
+  # Creating the multivariate gauss for each sig2 and rho combination
+  z = rmvnorm(500, mean = rep(0,2), sd = c(1,sqrt(comb[i,1])), rho = comb[i,2])
+  # adding it to list that will be 2100 elements. Each element is going to 
+  # be a 500 by 2 matrix
+  Z[[i]] = z
+  
+  EXPZ = exp(z)
+  # Rho tilda will be a 2100 by 1 matrix, giving the correlation
+  rho_til[i] = cor(EXPZ[,1],EXPZ[,2])
+}
+
+
+```
+
+
+```{r}
+plot(SIG2,rho_til[1:100], main = 'RHO = -1.0')
+plot(SIG2,rho_til[101:200], main = 'RHO = -0.9')
+plot(SIG2,rho_til[201:300], main = 'RHO = -0.8')
+plot(SIG2,rho_til[301:400], main = 'RHO = -0.7')
+plot(SIG2,rho_til[401:500], main = 'RHO = -0.6')
+plot(SIG2,rho_til[501:600], main = 'RHO = -0.5')
+plot(SIG2,rho_til[601:700], main = 'RHO = -0.4')
+plot(SIG2,rho_til[701:800], main = 'RHO = -0.3')
+plot(SIG2,rho_til[801:900], main = 'RHO = -0.2')
+plot(SIG2,rho_til[901:1000], main = 'RHO = -0.1')
+plot(SIG2,rho_til[1001:1100], main = 'RHO = 0.0')
+plot(SIG2,rho_til[1101:1200], main = 'RHO = 0.1')
+plot(SIG2,rho_til[1201:1300], main = 'RHO = 0.2')
+plot(SIG2,rho_til[1301:1400], main = 'RHO = 0.3')
+plot(SIG2,rho_til[1401:1500], main = 'RHO = 0.4')
+plot(SIG2,rho_til[1501:1600], main = 'RHO = 0.5')
+plot(SIG2,rho_til[1601:1700], main = 'RHO = 0.6')
+plot(SIG2,rho_til[1701:1800], main = 'RHO = 0.7')
+plot(SIG2,rho_til[1801:1900], main = 'RHO = 0.8')
+plot(SIG2,rho_til[1901:2000], main = 'RHO = 0.9')
+plot(SIG2,rho_til[2001:2100], main = 'RHO = 1.0')
+```
+
+## Problem 3.14
+```{r}
+N = 1000
+X1 = rnorm(N,0,1)
+X2 = rnorm(N,0,1)
+X3 = rnorm(N,0,1)
+
+Y1 = (X1 + X2 + X3)/sqrt(3)
+Y2 = (X1 - X2)/sqrt(2)
+
+covY1Y2 = cov(Y1,Y2)
+varY1Y2 = var(Y1*Y2)
+
+sprintf('Cov(Y1,Y2) = %f', covY1Y2)
+sprintf('Var(Y1Y2) = %f', varY1Y2)
+```
+
+
+## Problem 3.23
+**1)** As seen from the histogram and qqplot of the data vs the norm it is seen that the x part of the TC data does not have heavy tails because in the qqplot it is linear. Also, the histogram looks normal. To fit the X data, since I know it follows a normal distribution, I would estimate the parameters mean and sigma to get the parameters needed to create the normal distribution.
+```{r}
+data(TC)
+hist(TC[,1],25)
+
+```
+```{r,cache = F}
+data(TC)
+qqnorm(TC[,1])
+```
+
+**2)**
+As seen from the qqplot below the middle is linear but the ends curve away indicating that y has heavy tails. This ca also be seen in the histogram from the fact that the bars stretch on each side. Since I know there are heavy tails, to fit the data, I would find the parameters of the pareto distribution (m, xi, lambda). Most likely I would find a threshold value to create two separate estimation of the data. One for the majority of it and one for the tails. 
+```{r}
+hist(Rsafd::TC[,2],25)
+
+
+```
+```{r, cache = F}
+qqnorm(Rsafd::TC[,2])
+
+```
+
+**3)**
+The output seen below the code first shows the pearson correlation coefficeint, then kendall and lastly spearman. It can be seen that the pearson correlation between x and y is the highest at 0.185, while the spearman and kendall have much lower correlation values at 0.034 and 0.022. 
+```{r}
+pearson = cor(Rsafd::TC[,1], Rsafd::TC[,2],method = c("pearson"))
+kendall = cor(Rsafd::TC[,1], Rsafd::TC[,2], method = c('kendall'))
+spearman = cor(Rsafd::TC[,1], Rsafd::TC[,2], method = c('spearman'))
+
+print('Pearson')
+pearson
+print('Kendall')
+kendall
+print('Spearman')
+spearman
+```
+**4)**
+```{r}
+TC_Copy = Rsafd::TC
+TC_CopySort = TC_Copy[order(TC_Copy[,1], decreasing = FALSE),]
+z = TC_CopySort[TC_CopySort[,1] < -5.48,]
+x = z[,1]
+y = z[,2]
+
+pearson = cor(x, y,method = c("pearson"))
+kendall = cor(x, y, method = c('kendall'))
+spearman = cor(x, y, method = c('spearman'))
+
+print('Pearson')
+pearson
+print('Kendall')
+kendall
+print('Spearman')
+spearman
+
+```
+**5)** As seen from problem 3 and 4, all the correlation coefficients increased with the pearson coefficient value increasing the most to 0.792 and the Kendall and Spearman values increasing to 0.3468 and 0.4825 respectively. 
+
+
+
+```{r}
+# I needed to re-import the data to make sure that I had the original numbers
+# ran into issues when I didn't
+data(TC)
+# This takes all the rows for which the x column < -5.48 and 
+X = TC[TC[,1] < -5.48,][,1]
+Y = TC[TC[,1] < -5.48,][,2]
+
+pearson = cor(x, y,method = c("pearson"))
+kendall = cor(x, y, method = c('kendall'))
+spearman = cor(x, y, method = c('spearman'))
+
+print('Pearson')
+pearson
+print('Kendall')
+kendall
+print('Spearman')
+spearman
+
+```
+
+
+
+
+```{r}
+library(Rsafd)
+PCS.est<-fit.gpd(PCS[,2], tail="upper", upper=3)
+tailplot(PCS.est)
+
+```

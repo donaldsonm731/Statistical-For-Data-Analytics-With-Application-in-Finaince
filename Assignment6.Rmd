@@ -1,0 +1,89 @@
+---
+title: 'Fin STat: Hw6'
+author: "Matthew Donaldson"
+date: "3/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 4.10
+**1)**
+Two perform the two regressions, firsts you need to get the data set using 'Rsafd::MID1'. Next, since the data isn't ordered it is to your benefit to order the data base on the x-column using this line 'data = data[order(data[,1]),]'. Next you fit the two regression models using the function l1fit() and lsfit(). When putting the values to regress on you need to use the function poly(x,3) to get the third degree polynomial. This will then match with what is written in the problem.
+```{r}
+data = Rsafd::MID1
+head(data)
+data = data[order(data[,1]),]
+x = data[,1]
+y = data[,2]
+head(x)
+
+```
+Below, the output shows the coefficients for the lsfit first and the l1fit second. To construct the design matrix you take the observed values in the x-column and transform them into a matrix, where the first column is x to the power 1, the second column is x to the power 2 and the third column is x to the power 3. This can be done using the poly() function referenced above. Also, c2 and c1 are presented at the end of the output, with c2 first and c1 second.
+```{r}
+library(Rsafd)
+model.ls = lsfit(poly(x,3),y)
+model.abs = l1fit(poly(x,3),y)
+
+model.ls$coefficients
+model.abs$coefficients
+
+ypred = model.ls$coefficients[1] + poly(x,3) %*% model.ls$coefficients[2:4]
+
+c2 = sum(abs(y - model.ls$coefficients[1] - model.ls$coefficients[2]*x - model.ls$coefficients[3]*x^2 - model.ls$coefficients[4]*x^2)^2)
+
+c1 = sum(abs(y - model.abs$coefficients[1] - model.abs$coefficients[2]*x - model.abs$coefficients[3]*x^2 - model.abs$coefficients[4]*x^3))
+
+c2
+
+c1
+```
+
+**2)**
+Below is the scatter plot of the data with the l1fit, in blue and the lsfit in red. Looking at the plot, I would say that the l1fit is the better curve. It looks to fit the trend a little bit better than the lsfit. I think this method performed better because the l1fit is more robust to outliers in the data set.
+```{r}
+plot(x,y)
+lines(x,ypred , col = 'red')
+lines(x,fitted(model.abs), col = 'blue')
+
+````
+
+## Problem 4.11
+
+**1/2)**
+Below, a nonlinear fit is performed on the Puromycin data set for only treated instances. The values of Va and K are in the output and a plot can be seen below.  
+```{r}
+relation = function(Va, k ,x){
+  y = Va*(x/(x+k)) 
+  return(y)
+}
+
+#treatedP = Puromycin[,Puromycin$state == 'treated']
+treatedP = subset(Puromycin, state == 'treated')
+#Va = 200
+#k = 0.1
+x = treatedP$conc
+y = treatedP$rate
+
+nlFit = nls(y ~ relation(Va,k,x), data = treatedP,  start = c(Va = 200,k = 0.1))
+summary(nlFit)
+plot(x,y)
+lines(x,fitted(nlFit), type = "l", lty = "dashed")
+
+
+  
+
+```
+
+
+```{r}
+DNase1 <- subset(DNase, Run == 1)
+
+## using a selfStart model
+fm1DNase1 <- nls(density ~ SSlogis(log(conc), Asym, xmid, scal), DNase1)
+summary(fm1DNase1)
+
+
+```

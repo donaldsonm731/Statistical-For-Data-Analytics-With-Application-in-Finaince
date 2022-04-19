@@ -1,0 +1,122 @@
+---
+title: "Fin Stat - Hw2"
+author: "Matthew Donaldson"
+date: "1/30/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo =TRUE)
+```
+
+## Problem 2.2
+**1)**
+1.1 $F_{m = 0,\lambda = 1,\xi}(x) = 1 - (1 + \xi x)^{-(1/\xi)}$, if $x > 0$; else 0$ This is th cdf from the notes
+
+1.2 The quntile function is the inverse of $F_{m = 0,\lambda = 1,\xi}(x)$ ($Q(u) = F^{-1}(x)$). To derive this I solved for x interms of the variable u. $u = 1 - (1 + \xi x)^{-1/\xi} \rightarrow (1-u)^{-\xi} = 1 + \xi x \rightarrow x = \frac{(1-u)^{-\xi} - 1 }{\xi}$
+
+1.3 If I only had a random generator for a uniform distribution on [0,1] I would generate Monte Carlo samples from the distribution of X by taking the inverse of the uniform distribution to get by in R and then plugging those numbers into the pareto distribution. 
+
+## Problem 2.4
+**1)**
+```{r}
+library(Rsafd)
+#head(PCS)
+PCS.ml = gpd.ml(PCS[,2]) ## Uses MLE to find estimated parameters of generalized pareto dist.
+PCS.ml # Printing those values to see
+x = seq(from=-.2,to=15,length=5*length(PCS[,2])) # Generating a sequence that is 5 times the size of the data set used.
+X_pareto = rpareto(x,m = 0.07, lambda = 0.7095752,xi=.6359470) # Creating a random sample from the pareto dist. with est. parameters found above. This is the monte carlo simulation
+plot(x,X_pareto, main = 'Monte Carlo Random Sample')
+#plot(PCS)
+
+```
+**2)**
+Comments on the qqplot below.....
+```{r}
+qqplot(PCS[,2], X_pareto)
+
+```
+**3)**
+```{r}
+ks.test(PCS[,2], X_pareto, alternative = c("greater"))
+
+```
+**4)**
+```{r}
+## Part 1
+DSPLRET.ml = gpd.ml(DSPLRet) ## Uses MLE to find estimated parameters of generalized pareto dist.
+DSPLRET.ml # Printing those values to see
+x = seq(from=-.2,to=15,length=5*length(DSPLRet)) # Generating a sequence that is 5 times the size of the data set used.
+X_pareto_sp = rpareto(x,m = 3.9550825, lambda = 2.0620189,xi = -0.5748398) # Creating a random sample from the pareto dist. with est. parameters found above. This is the monte carlo simulation
+plot(x,X_pareto_sp, main = 'Monte Carlo Random Sample')
+plot(DSPLRet)
+
+```
+```{r}
+# Part 2
+qqplot(DSPLRet, X_pareto_sp)
+```
+```{r}
+# Part 3
+ks.test(DSPLRet, X_pareto_sp, alternative = c("greater"))
+```
+
+## Problem 2.5
+```{r}
+library(Rsafd)
+plot(PSPOT)
+qqnorm(PSPOT)
+#x = seq(from=-.2,to=15,length=5*length(PSPOT))
+#X_norm = rnorm(x)
+#qqplot(PSPOT,X_norm) ## This shows that the data has heavy tails
+#LMOM_P = sample.LMOM(PSPOT)
+#gpd.lmom(LMOM_P)
+PSPOT.lmom = gpd.lmom(PSPOT) # This fit GPD to data and gets the shape parameter estimates of gpd
+PSPOT.lmom # Prtins parameters
+#X_pareto_PSPOT = dpareto(x, m = 15.5282260, lambda = 39.5016753,xi = 0.3958178)
+
+#plot(x,X_pareto_PSPOT)
+```
+
+## Problem 2.6
+**1-2)**
+```{r}
+# Part 1
+head(DSP)
+DSPLRet = log(DSP)
+head(DSPLRet)
+
+# Part 2
+head(MSP)
+MSPLRet = log(MSP)
+head(MSPLRet)
+```
+**3)**
+COMMENT ON QQPLOT....
+```{r}
+## Part 3
+qqplot(DSPLRet, MSPLRet, main = 'qqplot of MSPLREt and DSPLRet')
+```
+**4)**
+COMMENTING ON Mean and variance for both and are they similar...
+```{r}
+# Statistics of DSP
+mu_DSPLRet = mean(DSPLRet) # Mean
+sigma_DSPLRet = sd(DSPLRet)^2 # Variance
+mu_DSPLRet
+sigma_DSPLRet
+## Statistics for MSP
+mu_MSPLRet = mean(MSPLRet) # Mean
+sigma_MSPLRet = sd(MSPLRet)^2 # Variance
+mu_MSPLRet
+sigma_MSPLRet
+```
+**5)**
+```{r}
+DSPLRet.lmom = gpd.lmom(DSPLRet) ## Uses L-moments to find estimated parameters of generalized pareto dist.
+DSPLRet.lmom # Printing those values to see
+
+MSPLRet.lmom = gpd.lmom(MSPLRet) ## Uses L-moments to find estimated parameters of generalized pareto dist.
+MSPLRet.lmom # Printing those values to see
+
+```

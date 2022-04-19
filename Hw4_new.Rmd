@@ -1,0 +1,75 @@
+---
+title: 'FinStat: Hw4'
+author: "Matthew Donaldson"
+date: "2/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 3.7
+**1)**
+```{r}
+
+#head(UTILITIES)
+X = Rsafd::UTILITIES[,1]
+Y = Rsafd::UTILITIES[,2]
+
+meanX = mean(X)
+meanY = mean(Y)
+varX = var(X)
+sdX = sqrt(varX)
+varY = var(Y)
+sdY = sqrt(varY)
+
+corXY = cor(X,Y, method = c("pearson"))#, "kendall", "spearman"))
+
+sprintf('mean of X: %f', meanX)
+sprintf('mean of Y: %f', meanY)
+sprintf('standard deviation of X: %f', sdX)
+sprintf('standard deviation of Y: %f', sdY)
+sprintf('Cor of XY: %f', corXY)
+
+
+```
+
+**2)**
+All comparable in methods as seen from the outputs below.
+```{r}
+p = 0.02
+varx = var(X)
+vary = var(Y)
+covXY = cov(X,Y)
+sigma = matrix( c(varx,covXY,covXY,vary), nrow = 2,ncol = 2, byrow = TRUE)
+
+
+# X + Y
+# Gives the quantile corresponding to 2%
+
+##rSample = rmvnorm(n=500, mean=c(meanX,meanY), sigma = sigma)
+quantile1 = qnorm(0.02, mean = meanX + meanY, sd = sqrt(varx + vary + 2*covXY))
+quantile2 = qnorm(0.02, mean = meanX - meanY, sd = sqrt(varx + vary - 2*covXY))
+
+
+
+
+print('X+Y')
+print('2% Quantile random sample')
+print(quantile1)
+#quantile(rSample[,1] + rSample[,2], probs = 0.02)
+print('Empirical estimates of these percentiles')
+quantile(X+Y, probs = 0.02)
+
+# X - Y
+print('X-Y')
+print('2% Quantile random sample')
+#quantile(rSample[,1] - rSample[,2], probs = 0.02)
+print(quantile2)
+print('Empirical estimates of these percentiles')
+quantile(X-Y, probs = 0.02)
+
+
+```
+
